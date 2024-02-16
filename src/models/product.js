@@ -1,19 +1,18 @@
 const {DataTypes} = require('sequelize');
-const sequelize = require('../database/database');
+const sequelize = require('../config/sequelize'); // Adjust the path as necessary
 
-const OrderDetail = sequelize.define('OrderDetail', {
-    orderDetailId: {
+const Product = sequelize.define('Product', {
+    productId: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true
     },
-    orderId: {
-        type: DataTypes.INTEGER,
+    name: {
+        type: DataTypes.STRING,
         allowNull: false
     },
-    productId: {
-        type: DataTypes.INTEGER,
-        allowNull: false
+    description: {
+        type: DataTypes.TEXT
     },
     price: {
         type: DataTypes.STRING,
@@ -27,13 +26,13 @@ const OrderDetail = sequelize.define('OrderDetail', {
     //     type: DataTypes.STRING(3), // For ISO currency codes like 'GBP', 'USD', etc.
     //     allowNull: false
     // },
-    quantity: {
+    stock: {
         type: DataTypes.INTEGER,
-        defaultValue: 1
+        defaultValue: 0
     }
 }, {
     timestamps: true,
-    tableName: 'order_details',
+    tableName: 'products',
 });
 
-module.exports = OrderDetail;
+module.exports = Product;
