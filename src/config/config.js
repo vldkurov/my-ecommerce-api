@@ -8,6 +8,7 @@ module.exports = {
         host: process.env.DB_HOST,
         dialect: process.env.DB_DIALECT,
         secret: process.env.SECRET,
+        jwt_secret: process.env.JWT_SECRET,
     },
     production: {
         // Similar structure, but values might come from different environment variables or secrets management

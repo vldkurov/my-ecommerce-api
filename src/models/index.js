@@ -5,6 +5,7 @@ const CartModel = require('./cart');
 const CartItemModel = require('./cartItem');
 const OrderModel = require('./order');
 const OrderDetailModel = require('./orderDetail');
+const CategoryModel = require('./category')
 
 // User and Order associations
 UserModel.hasMany(OrderModel, {foreignKey: 'userId'});
@@ -30,6 +31,10 @@ CartModel.belongsToMany(ProductModel, {through: CartItemModel, foreignKey: 'cart
 ProductModel.belongsToMany(OrderModel, {through: OrderDetailModel, foreignKey: 'productId'});
 OrderModel.belongsToMany(ProductModel, {through: OrderDetailModel, foreignKey: 'orderId'});
 
+// Product and Category
+ProductModel.belongsTo(CategoryModel, {foreignKey: 'categoryId', as: 'category'});
+CategoryModel.hasMany(ProductModel, {foreignKey: 'categoryId', as: 'products'});
+
 
 module.exports = {
     sequelize,
@@ -38,5 +43,6 @@ module.exports = {
     CartModel,
     CartItemModel,
     OrderModel,
-    OrderDetailModel
+    OrderDetailModel,
+    CategoryModel
 };

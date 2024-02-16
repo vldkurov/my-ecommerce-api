@@ -29,6 +29,14 @@ const Product = sequelize.define('Product', {
     stock: {
         type: DataTypes.INTEGER,
         defaultValue: 0
+    },
+    categoryId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'categories',
+            key: 'categoryId',
+        }
     }
 }, {
     timestamps: true,
