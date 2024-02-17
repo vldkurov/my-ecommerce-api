@@ -10,7 +10,7 @@ require('./config/passport')(passport);
 const app = express();
 const logger = require('morgan');
 const {sequelize} = require("./models");
-const PORT = process.env.PORT || 3000;
+const PORT = config.port || 3000;
 
 // Express session
 app.use(
@@ -51,7 +51,6 @@ const {isAuthenticated} = require("./api/middlewares");
 // Use routes
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
-
 
 app.get('/', (req, res) => {
     res.send('Hello World! Welcome to The E-commerce API');
