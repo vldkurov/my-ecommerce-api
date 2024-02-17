@@ -46,11 +46,13 @@ app.use(express.json());
 // Import routes
 const userRoutes = require('./api/routes/userRoutes');
 const productRoutes = require('./api/routes/productRoutes');
+const accountRoutes = require('./api/routes/accountRoutes')
 const {isAuthenticated} = require("./api/middlewares");
 
 // Use routes
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/accounts', accountRoutes);
 
 app.get('/', (req, res) => {
     res.send('Hello World! Welcome to The E-commerce API');

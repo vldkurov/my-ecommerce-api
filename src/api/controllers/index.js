@@ -6,6 +6,7 @@ const {
     updateProductByID,
     deleteProductByID
 } = require('./productController')
+const {getAllUsers, getUserByID, updateUserByID} = require('./accountController')
 
 module.exports = {
     // User
@@ -17,5 +18,9 @@ module.exports = {
     getProductByID,
     createProduct,
     updateProductByID,
-    deleteProductByID
+    deleteProductByID,
+    //Accounts
+    getAllUsers,
+    getUserByID,
+    updateUserByID
 };
