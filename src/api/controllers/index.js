@@ -1,5 +1,11 @@
 const {registerUser, loginUser, logoutUser} = require('./userController');
-const {getProductByCategory, getProductByID} = require('./productController')
+const {
+    getProductByCategory,
+    getProductByID,
+    createProduct,
+    updateProductByID,
+    deleteProductByID
+} = require('./productController')
 
 module.exports = {
     // User
@@ -8,5 +14,8 @@ module.exports = {
     logoutUser,
     // Product
     getProductByCategory,
-    getProductByID
+    getProductByID,
+    createProduct,
+    updateProductByID,
+    deleteProductByID
 };

@@ -46,7 +46,7 @@ app.use(express.json());
 // Import routes
 const userRoutes = require('./api/routes/userRoutes');
 const productRoutes = require('./api/routes/productRoutes');
-const {requireAuth} = require("./api/middlewares");
+const {isAuthenticated} = require("./api/middlewares");
 
 // Use routes
 app.use('/api/users', userRoutes);
@@ -57,16 +57,16 @@ app.get('/', (req, res) => {
     res.send('Hello World! Welcome to The E-commerce API');
 });
 
-app.get('/protected', requireAuth, (req, res) => {
+app.get('/protected', isAuthenticated, (req, res) => {
     res.json({message: 'This is a protected route'});
 });
 
-app.get('/error', (req, res) => {
+app.get('/error', () => {
     throw new Error('This is a test error.');
 });
 
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
     console.error(err.stack); // Always log the error stack
 
     const statusCode = err.statusCode || 500;

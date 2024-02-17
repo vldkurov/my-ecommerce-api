@@ -1,3 +1,4 @@
-const {requireAuth} = require('./authMiddleware')
+const {isAuthenticated} = require('./isAuthenticated')
+const {isAdmin} = require('./isAdmin')
 
-module.exports = {requireAuth}
+module.exports = {isAuthenticated, isAdmin}

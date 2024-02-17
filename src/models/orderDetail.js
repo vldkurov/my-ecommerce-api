@@ -16,17 +16,13 @@ const OrderDetail = sequelize.define('OrderDetail', {
         allowNull: false
     },
     price: {
-        type: DataTypes.STRING,
-        allowNull: false
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        get() {
+            const rawValue = this.getDataValue('price');
+            return `£${rawValue}`;
+        }
     },
-    // price: {
-    //     type: DataTypes.DECIMAL(10, 2),
-    //     allowNull: false
-    // },
-    // currency: {
-    //     type: DataTypes.STRING(3), // For ISO currency codes like 'GBP', 'USD', etc.
-    //     allowNull: false
-    // },
     quantity: {
         type: DataTypes.INTEGER,
         defaultValue: 1

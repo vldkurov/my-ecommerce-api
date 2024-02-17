@@ -22,6 +22,16 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    role: {
+        type: DataTypes.STRING,
+        defaultValue: 'user',
+        validate: {
+            isIn: {
+                args: [['admin', 'editor', 'user']],
+                msg: "Must be a valid role"
+            }
+        }
+    }
 }, {
     // Sequelize options
     timestamps: true, // if you are managing timestamps manually

@@ -130,5 +130,6 @@ dist
 .pnp.*
 
 .idea/
+src/utils/
 
 
