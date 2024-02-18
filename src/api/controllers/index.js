@@ -7,6 +7,8 @@ const {
     deleteProductByID
 } = require('./productController')
 const {getAllUsers, getUserByID, updateUserByID} = require('./accountController')
+const {createCart, addProductToCart, getCartContentByID, cartCheckout} = require('./cartController')
+
 
 module.exports = {
     // User
@@ -19,8 +21,14 @@ module.exports = {
     createProduct,
     updateProductByID,
     deleteProductByID,
-    //Accounts
+    // Accounts
     getAllUsers,
     getUserByID,
-    updateUserByID
+    updateUserByID,
+    // Carts
+    createCart,
+    addProductToCart,
+    getCartContentByID,
+    // Order
+    cartCheckout,
 };
