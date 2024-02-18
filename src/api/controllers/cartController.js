@@ -128,7 +128,7 @@ const cartCheckout = async (req, res) => {
         const order = await OrderModel.create({
             userId: req.user.userId,
             totalPrice, // This should be a numeric value by this point
-            status: 'completed',
+            status: 'pending',
             // other fields...
         });
 
