@@ -8,6 +8,7 @@ const {
 } = require('./productController')
 const {getAllUsers, getUserByID, updateUserByID} = require('./accountController')
 const {createCart, addProductToCart, getCartContentByID, cartCheckout} = require('./cartController')
+const {getAllOrders, getOrderByID} = require('./orderController')
 
 
 module.exports = {
@@ -29,6 +30,8 @@ module.exports = {
     createCart,
     addProductToCart,
     getCartContentByID,
-    // Order
     cartCheckout,
+    // Order
+    getAllOrders,
+    getOrderByID
 };

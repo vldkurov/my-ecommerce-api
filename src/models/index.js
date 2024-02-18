@@ -42,6 +42,9 @@ OrderModel.belongsToMany(ProductModel, {through: OrderDetailModel, foreignKey: '
 ProductModel.belongsTo(CategoryModel, {foreignKey: 'categoryId', as: 'category'});
 CategoryModel.hasMany(ProductModel, {foreignKey: 'categoryId', as: 'products'});
 
+OrderDetailModel.belongsTo(ProductModel, {as: 'Product', foreignKey: 'productId'});
+ProductModel.hasMany(OrderDetailModel, {as: 'OrderDetails', foreignKey: 'productId'});
+
 
 module.exports = {
     sequelize,

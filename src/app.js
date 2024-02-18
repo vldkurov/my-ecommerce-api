@@ -48,6 +48,7 @@ const userRoutes = require('./api/routes/userRoutes');
 const productRoutes = require('./api/routes/productRoutes');
 const accountRoutes = require('./api/routes/accountRoutes')
 const cartRoutes = require('./api/routes/cartRoutes')
+const orderRoutes = require('./api/routes/orderRoutes')
 const {isAuthenticated} = require("./api/middlewares");
 
 // Use routes
@@ -55,6 +56,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/carts', cartRoutes)
+app.use('/api/orders', orderRoutes)
 
 app.get('/', (req, res) => {
     res.send('Hello World! Welcome to The E-commerce API');
