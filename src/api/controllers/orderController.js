@@ -40,7 +40,6 @@ const getAllOrders = async (req, res) => {
             return orderClone;
         });
 
-
         res.json(ordersWithFormattedPrices);
     } catch (error) {
         console.error('Error fetching orders:', error);
