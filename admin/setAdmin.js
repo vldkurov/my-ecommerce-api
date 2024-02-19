@@ -1,4 +1,4 @@
-const {UserModel} = require("../models");
+const {UserModel} = require("../src/models");
 
 async function setAdmin(userId) {
     try {
