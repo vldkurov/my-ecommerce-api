@@ -2,15 +2,23 @@ require('dotenv').config({path: '../.env'});
 const config = require('./config/config').development; // Or dynamically determine the environment
 
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const flash = require('connect-flash');
 const session = require('express-session');
 const passport = require('passport');
 require('./config/passport')(passport);
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const path = require('path');
 const app = express();
 const logger = require('morgan');
 const {sequelize} = require("./models");
 const PORT = config.port || 3000;
+const {mergeYAMLFiles} = require('./utils/mergeYAMLFiles')
+
+mergeYAMLFiles()
+
 
 // Express session
 app.use(
@@ -33,7 +41,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
-app.use('/static', express.static('public'));
+// app.use('/static', express.static('public'));
+app.use(express.static('public'));
 
 
 // Passport middleware
@@ -42,6 +51,7 @@ app.use(passport.session());
 
 app.use(logger('dev'));
 app.use(express.json());
+app.use(bodyParser.json());
 
 // Import routes
 const userRoutes = require('./api/routes/userRoutes');
@@ -51,12 +61,18 @@ const cartRoutes = require('./api/routes/cartRoutes')
 const orderRoutes = require('./api/routes/orderRoutes')
 const {isAuthenticated} = require("./api/middlewares");
 
+const swaggerDocument = YAML.load(path.join(__dirname, '..', 'docs', 'api-docs.yaml'));
+
 // Use routes
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/carts', cartRoutes)
 app.use('/api/orders', orderRoutes)
+
+// Serve Swagger docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 
 app.get('/', (req, res) => {
     res.send('Hello World! Welcome to The E-commerce API');
@@ -70,25 +86,14 @@ app.get('/error', () => {
     throw new Error('This is a test error.');
 });
 
-
 app.use((err, req, res) => {
-    console.error(err.stack); // Always log the error stack
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
-    const statusCode = err.statusCode || 500;
-    if (process.env.NODE_ENV === 'development') {
-        res.status(statusCode).json({
-            status: 'error',
-            statusCode: statusCode,
-            message: err.message,
-            stack: err.stack,
-        });
-    } else {
-        res.status(statusCode).json({
-            status: 'error',
-            statusCode: statusCode,
-            message: 'Internal Server Error',
-        });
-    }
+app.use((req, res, next) => {
+    // your logic here
+    res.status(404).send('Not Found');
 });
 
 

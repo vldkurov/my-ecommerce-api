@@ -47,7 +47,6 @@ const registerUser = async (req, res) => {
             email: newUser.email,
             token: `Bearer ${token}`
         });
-
     } catch (error) {
         console.error('Error registering UserModel:', error);
         res.status(500).send('Server error');
