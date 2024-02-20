@@ -1,5 +1,5 @@
 const {Sequelize} = require('sequelize');
-const config = require('./config').development; // Or dynamically determine the environment
+const config = require('./config')
 
 const sequelize = new Sequelize(
     config.database,

@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const config = require('../../config/config').development; // Or dynamically determine the environment
+const config = require('../../config/config')
 const {sequelize, UserModel} = require("../../models");
 
 

@@ -1,11 +1,10 @@
 require('dotenv').config({path: '../.env'});
-const config = require('./config/config').development; // Or dynamically determine the environment
+const config = require('./config/config');
 
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const flash = require('connect-flash');
-// const session = require('express-session');
 
 const passport = require('passport');
 require('./config/passport')(passport);
@@ -20,24 +19,8 @@ const {mergeYAMLFiles} = require('./utils/mergeYAMLFiles')
 
 mergeYAMLFiles()
 
-// Express session
-// app.use(
-//     session({
-//         secret: config.secret,
-//         saveUninitialized: true,
-//         resave: false,
-//     })
-// );
-
 
 app.use(flash());
-// Set global variables (optional)
-// app.use((req, res, next) => {
-//     res.locals.success_msg = req.flash('success_msg');
-//     res.locals.error_msg = req.flash('error_msg');
-//     res.locals.error = req.flash('error');
-//     next();
-// });
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
@@ -48,7 +31,6 @@ app.use(express.static('public'));
 
 // Passport middleware
 app.use(passport.initialize());
-// app.use(passport.session());
 
 app.use(logger('dev'));
 app.use(express.json());
