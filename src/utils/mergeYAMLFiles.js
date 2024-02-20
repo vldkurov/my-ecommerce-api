@@ -16,8 +16,8 @@ const mergeYAMLFiles = () => {
         },
         servers: [
             {
-                url: 'http://localhost:3000/api',
-                description: 'Development server',
+                url: process.env.NODE_ENV === 'production' ? 'https://the-e-commerce-api.onrender.com/api' : 'http://localhost:3000/api',
+                description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
             },
         ],
         paths: {},
