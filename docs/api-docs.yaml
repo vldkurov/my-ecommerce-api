@@ -5,8 +5,8 @@ info:
     description: 'This is a simple CRUD API application made with Express and documented with Swagger'
 servers:
     -
-        url: 'http://localhost:3000/api'
-        description: 'Development server'
+        url: 'https://the-e-commerce-api.onrender.com/api'
+        description: 'Production server'
 paths:
     /users/register:
         post:

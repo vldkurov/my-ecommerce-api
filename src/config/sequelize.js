@@ -1,24 +1,32 @@
 const {Sequelize} = require('sequelize');
-const config = require('./config')
+const config = require('./config');
+
+const useSSL = process.env.NODE_ENV === 'production';
+
+const sequelizeOptions = {
+    host: config.host,
+    dialect: config.dialect,
+    logging: false,
+};
+
+
+if (useSSL) {
+    sequelizeOptions.dialectOptions = {
+        ssl: {
+            require: true,
+            rejectUnauthorized: true // Внимание: для лучшей безопасности следует использовать CA сертификат
+        }
+    };
+}
 
 const sequelize = new Sequelize(
     config.database,
     config.username,
-    config.password, {
-        host: config.host,
-        dialect: config.dialect,
-        logging: false,
-        // Additional Sequelize configuration
-        dialectOptions: {
-            ssl: {
-                require: true,
-                rejectUnauthorized: false // Note: Setting this to false is not recommended for production as it allows for MITM attacks.
-                // For better security, use the CA certificate provided by your database host or a trusted CA.
-            }
-        },
-    });
+    config.password,
+    sequelizeOptions
+);
 
-// Test the connection
+// Тестирование соединения
 async function testConnection() {
     try {
         await sequelize.authenticate();
@@ -28,7 +36,6 @@ async function testConnection() {
     }
 }
 
-testConnection().then(() => console.log('Test connection pass.'));
+testConnection().then(() => console.log('Database test connection pass.'));
 
 module.exports = sequelize;
-
