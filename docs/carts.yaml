@@ -45,7 +45,7 @@ paths:
                 - productId
                 - quantity
       responses:
-        200:
+        201:
           description: Product added to cart successfully
         401:
           description: Unauthorized
@@ -102,7 +102,7 @@ paths:
             type: integer
           description: The ID of the cart to checkout.
       responses:
-        200:
+        201:
           description: Checkout processed successfully
         401:
           description: Unauthorized

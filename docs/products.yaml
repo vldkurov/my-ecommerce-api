@@ -42,6 +42,12 @@ paths:
           description: Unauthorized
         403:
           description: Forbidden, requires admin role
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /products/{productId}:
     get:
@@ -127,16 +133,22 @@ components:
       properties:
         productId:
           type: integer
+          example: 1
         name:
           type: string
+          example: "Eco-friendly Water Bottle"
         description:
           type: string
+          example: "A 24oz reusable water bottle made from BPA-free plastic."
         price:
           type: string
+          example: "£15.99"
         stock:
           type: integer
+          example: 150
         categoryId:
           type: integer
+          example: 2
       required:
         - productId
         - name
@@ -149,18 +161,31 @@ components:
       properties:
         name:
           type: string
+          example: "Sustainable Yoga Mat"
         description:
           type: string
+          example: "Eco-friendly, made from natural rubber. 6ft length."
         price:
-          type: string
+          type: decimal
+          example: 45.00
         stock:
           type: integer
-        categoryId:
-          type: integer
+          example: 100
+        categoryName:
+          type: string
+          example: "Home & Kitchen"
       required:
         - name
         - price
         - categoryId
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: 'Internal server error. Please try again later.'
+
+
 
 securitySchemes:
   bearerAuth:

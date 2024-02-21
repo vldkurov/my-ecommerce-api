@@ -1,17 +1,17 @@
 const {CartModel, CartItemModel, ProductModel, OrderModel, OrderDetailModel} = require('../../models')
+const {sendSuccessResponse, sendErrorResponse} = require("../../heplers");
 
 const createCart = async (req, res) => {
-    const userId = req.user.userId; // Assuming you're extracting the user ID from the auth token
+    const userId = req.user.userId;
 
     try {
         let cart = await CartModel.findOne({where: {userId}});
         if (!cart) {
             cart = await CartModel.create({userId});
         }
-        return res.status(201).json(cart);
+        sendSuccessResponse(res, 201, cart);
     } catch (error) {
-        console.error('Error creating or retrieving cart:', error);
-        return res.status(500).send('Internal Server Error');
+        sendErrorResponse(res, 500, 'Error creating or retrieving cart', error);
     }
 }
 
@@ -22,12 +22,12 @@ const addProductToCart = async (req, res) => {
     try {
         const cart = await CartModel.findByPk(cartId);
         if (!cart) {
-            return res.status(404).send('Cart not found');
+            return sendErrorResponse(res, 404, 'Cart not found');
         }
 
         // Check if the cart belongs to the current user
         if (cart.userId !== req.user.userId) {
-            return res.status(403).send('Access denied');
+            return sendErrorResponse(res, 403, 'Access denied');
         }
 
         // Add or update the product in the cart
@@ -44,22 +44,14 @@ const addProductToCart = async (req, res) => {
         // Fetch the product name from the Product model
         const product = await ProductModel.findByPk(productId);
         if (!product) {
-            return res.status(404).send('Product not found');
+            return sendErrorResponse(res, 404, 'Product not found');
         }
 
-        // Construct and send the response with the product name
-        const response = {
-            cartId: item.cartId,
-            cartItemId: item.cartItemId,
-            productId: item.productId,
-            productName: product.name, // Including product name in the response
-            quantity: item.quantity
-        };
+        const response = {...item.get({plain: true}), productName: product.name};
 
-        return res.status(201).json(response);
+        sendSuccessResponse(res, 201, response);
     } catch (error) {
-        console.error('Error adding product to cart:', error);
-        return res.status(500).send('Internal Server Error');
+        sendErrorResponse(res, 500, 'Error adding product to cart', error);
     }
 }
 
@@ -70,27 +62,24 @@ const getCartContentByID = async (req, res) => {
         const cart = await CartModel.findByPk(cartId, {
             include: [{
                 model: CartItemModel,
-                as: 'items', // Use the alias defined in the association
-                include: [{
-                    model: ProductModel,
-                    as: 'product' // Make sure this matches the alias in the association
-                }]
+                as: 'items',
+                include: ['product']
             }]
         });
 
         if (!cart) {
-            return res.status(404).send('Cart not found');
+            return sendErrorResponse(res, 404, 'Cart not found');
         }
 
         // Check if the cart belongs to the current user
         if (cart.userId !== req.user.userId) {
-            return res.status(403).send('Access denied');
+            return sendErrorResponse(res, 403, 'Access denied');
         }
 
-        return res.json(cart);
+        // return res.json(cart);
+        sendSuccessResponse(res, 200, cart);
     } catch (error) {
-        console.error('Error retrieving cart:', error);
-        return res.status(500).send('Internal Server Error');
+        sendErrorResponse(res, 500, 'Error retrieving cart', error);
     }
 }
 
@@ -104,30 +93,26 @@ const cartCheckout = async (req, res) => {
             include: [{
                 model: CartItemModel,
                 as: 'items',
-                include: [{model: ProductModel, as: 'product'}]
+                include: ['product']
             }]
         });
 
         if (!cart) {
-            return res.status(404).send('Cart not found');
+            return sendErrorResponse(res, 404, 'Cart not found');
         }
 
         // Assuming you are inside the checkout logic
         let totalPrice = cart.items.reduce((total, item) => {
             // Access the raw numeric value of the price
             const rawPrice = item.product.getDataValue('price');
-            console.log(`Raw Price: ${rawPrice}`); // For debugging, should show the numeric value
             const itemPrice = parseFloat(rawPrice);
             return total + (item.quantity * itemPrice);
         }, 0);
 
-        console.log(`Total Price: ${totalPrice}`); // Should now correctly show the total price as a number
-
-
         // Create the Order with totalPrice
         const order = await OrderModel.create({
             userId: req.user.userId,
-            totalPrice, // This should be a numeric value by this point
+            totalPrice,
             status: 'pending',
             // other fields...
         });
@@ -138,7 +123,7 @@ const cartCheckout = async (req, res) => {
                 orderId: order.orderId,
                 productId: item.productId,
                 quantity: item.quantity,
-                price: parseFloat(item.product.price) // Assume price is stored in the Product model; adjust as necessary
+                price: parseFloat(item.product.price)
             });
         }));
 
@@ -152,11 +137,10 @@ const cartCheckout = async (req, res) => {
             totalPrice: formattedTotalPrice,
         };
 
-        return res.status(201).json(response);
+        sendSuccessResponse(res, 201, response);
 
     } catch (error) {
-        console.error('Error processing checkout:', error);
-        return res.status(500).send('Internal Server Error');
+        sendErrorResponse(res, 500, 'Error processing checkout', error);
     }
 }
 
