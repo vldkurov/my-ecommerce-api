@@ -14,7 +14,7 @@ if (useSSL) {
     sequelizeOptions.dialectOptions = {
         ssl: {
             require: true,
-            rejectUnauthorized: true // Внимание: для лучшей безопасности следует использовать CA сертификат
+            // rejectUnauthorized: false
         }
     };
 }
