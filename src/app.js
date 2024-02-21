@@ -2,23 +2,23 @@ require('dotenv').config({path: '../.env'});
 const config = require('./config/config');
 
 const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const flash = require('connect-flash');
-
-const passport = require('passport');
-require('./config/passport')(passport);
-const swaggerUi = require('swagger-ui-express');
-const YAML = require('yamljs');
 const path = require('path');
 const app = express();
+const cors = require('cors');
+const flash = require('connect-flash');
 const logger = require('morgan');
+const bodyParser = require('body-parser');
+const passport = require('passport');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
 const {sequelize} = require("./models");
+require('./config/passport')(passport);
+
 const PORT = config.port || 3000;
+
 const {mergeYAMLFiles} = require('./utils/mergeYAMLFiles')
 
 mergeYAMLFiles()
-
 
 app.use(flash());
 app.use(cors());
@@ -46,15 +46,15 @@ const {isAuthenticated} = require("./api/middlewares");
 
 const swaggerDocument = YAML.load(path.join(__dirname, '..', 'docs', 'api-docs.yaml'));
 
+// Serve Swagger docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // Use routes
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/carts', cartRoutes)
 app.use('/api/orders', orderRoutes)
-
-// Serve Swagger docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 app.get('/', (req, res) => {
@@ -69,15 +69,23 @@ app.get('/error', () => {
     throw new Error('This is a test error.');
 });
 
-app.use((err, req, res) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
+const ERROR_MESSAGE = 'Something broke!';
+const NOT_FOUND_MESSAGE = 'Not Found';
 
-app.use((req, res) => {
-    // your logic here
-    res.status(404).send('Not Found');
-});
+const INTERNAL_SERVER_ERROR_STATUS = 500;
+const NOT_FOUND_STATUS = 404;
+
+const handleErrors = (err, req, res) => {
+    console.error(err.stack);
+    res.status(INTERNAL_SERVER_ERROR_STATUS).send(ERROR_MESSAGE);
+};
+
+const handleNotFound = (req, res) => {
+    res.status(NOT_FOUND_STATUS).send(NOT_FOUND_MESSAGE);
+};
+
+app.use(handleErrors);
+app.use(handleNotFound);
 
 
 // Synchronize models with the database
