@@ -166,7 +166,7 @@ components:
           type: string
           example: "Eco-friendly, made from natural rubber. 6ft length."
         price:
-          type: decimal
+          type: number
           example: 45.00
         stock:
           type: integer

@@ -69,6 +69,10 @@ app.get('/error', () => {
     throw new Error('This is a test error.');
 });
 
+app.get("/health", (req, res) => {
+    res.sendStatus(200)
+});
+
 const ERROR_MESSAGE = 'Something broke!';
 const NOT_FOUND_MESSAGE = 'Not Found';
 
