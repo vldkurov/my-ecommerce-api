@@ -144,4 +144,42 @@ const cartCheckout = async (req, res) => {
     }
 }
 
-module.exports = {createCart, addProductToCart, getCartContentByID, cartCheckout}
+const deleteProductFromCart = async (req, res) => {
+    const {cartId, cartItemId} = req.params;
+
+
+    try {
+        // Fetch the cart item to ensure it exists and belongs to the correct cart
+        const cartItem = await CartItemModel.findByPk(cartItemId);
+
+
+        if (!cartItem) {
+            return sendErrorResponse(res, 404, 'Cart item not found');
+        }
+
+        if (cartItem.cartId !== parseInt(cartId)) {
+            return sendErrorResponse(res, 403, 'Access to cart denied');
+        }
+
+        // Ensure the cart belongs to the current user
+        const cart = await CartModel.findByPk(cartId);
+        if (cart.userId !== req.user.userId) {
+            return sendErrorResponse(res, 403, 'Unauthorized to access this cart');
+        }
+
+        // Delete the cart item
+        await CartItemModel.destroy({
+            where: {
+                cartItemId: cartItemId
+            }
+        });
+
+
+        sendSuccessResponse(res, 200, {message: 'Item deleted successfully', cartItemId: cartItemId});
+    } catch (error) {
+        sendErrorResponse(res, 500, 'Error deleting cart item', error.toString());
+    }
+}
+
+
+module.exports = {createCart, addProductToCart, getCartContentByID, cartCheckout, deleteProductFromCart}

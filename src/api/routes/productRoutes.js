@@ -5,12 +5,15 @@ const {
     getProductByID,
     createProduct,
     updateProductByID,
-    deleteProductByID
+    deleteProductByID, getAllCategory
 } = require("../controllers");
 const {isAuthenticated, isAdmin} = require("../middlewares");
 
-// GET /products?category={categoryId}
-router.get('/', getProductByCategory);
+// GET /products/categories
+router.get('/categories', getAllCategory);
+
+// GET /products/all?category={categoryId}
+router.get('/all', getProductByCategory);
 
 // GET /products/{productId}
 router.get('/:productId', getProductByID);

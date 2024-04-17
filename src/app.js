@@ -8,11 +8,14 @@ const cors = require('cors');
 const flash = require('connect-flash');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
-const passport = require('passport');
+const cookieParser = require("cookie-parser");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const session = require("express-session");
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
-const {sequelize} = require("./models");
-require('./config/passport')(passport);
+const {sequelize, UserModel} = require("./models");
+const {localStrategy} = require("./api/controllers/userController");
 
 const PORT = config.port || 3000;
 
@@ -20,8 +23,29 @@ const {mergeYAMLFiles} = require('./utils/mergeYAMLFiles')
 
 mergeYAMLFiles()
 
+app.use(
+    session({
+        secret: 'yourSecretKey',
+        resave: false,
+        saveUninitialized: true,
+        cookie: {
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 1000 * 60 * 60 * 24, // Example: 24 hours
+            httpOnly: true,
+            SameSite: 'Strict'
+        }
+    })
+);
+
+// CORS configuration
+const corsOptions = {
+    origin: 'http://localhost:3000', // Allow only this origin to send requests
+    credentials: true, // Allow cookies and credentials
+};
+
 app.use(flash());
-app.use(cors());
+app.use(cors(corsOptions));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
@@ -29,8 +53,29 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.static('public'));
 
 
-// Passport middleware
 app.use(passport.initialize());
+// Add the middleware to implement a session with passport below:
+app.use(passport.session());
+// Complete the serializeUser function below:
+passport.serializeUser((user, done) => {
+    done(null, user.userId);
+});
+// Complete the deserializeUser function below:
+passport.deserializeUser((userId, done) => {
+    UserModel.findByPk(userId).then(user => {
+        done(null, user);
+    }).catch(err => {
+        done(err);
+    });
+});
+
+// Add your passport local strategy below:
+passport.use(new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'password',
+    }, localStrategy
+));
+
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -43,6 +88,7 @@ const accountRoutes = require('./api/routes/accountRoutes')
 const cartRoutes = require('./api/routes/cartRoutes')
 const orderRoutes = require('./api/routes/orderRoutes')
 const {isAuthenticated} = require("./api/middlewares");
+
 
 const swaggerDocument = YAML.load(path.join(__dirname, '..', 'docs', 'api-docs.yaml'));
 
