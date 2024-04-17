@@ -15,7 +15,7 @@ const {
     cartCheckout,
     deleteProductFromCart
 } = require('./cartController')
-const {getAllOrders, getOrderByID, createOrder} = require('./orderController')
+const {getAllOrders, getOrderByID, createOrder, cancelOrder} = require('./orderController')
 
 
 module.exports = {
@@ -44,5 +44,6 @@ module.exports = {
     // Order
     getAllOrders,
     getOrderByID,
-    createOrder
+    createOrder,
+    cancelOrder
 };

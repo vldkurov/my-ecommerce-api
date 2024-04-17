@@ -112,7 +112,7 @@ const createOrder = async (req, res) => {
         }
 
         // Optionally clear the cart after creating an order
-        // await CartItemModel.destroy({where: {cartId: cart.cartId}});
+        await CartItemModel.destroy({where: {cartId: cart.cartId}});
 
         sendSuccessResponse(res, 201, {
             orderId: order.orderId,
@@ -124,5 +124,27 @@ const createOrder = async (req, res) => {
     }
 };
 
+const cancelOrder = async (req, res) => {
+    const {orderId} = req.params;
+    const userId = req.user.userId;
 
-module.exports = {getAllOrders, getOrderByID, createOrder}
+    try {
+        const order = await OrderModel.findOne({
+            where: {orderId: orderId, userId: userId}
+        });
+
+        if (!order) {
+            return sendErrorResponse(res, 404, 'Order not found');
+        }
+
+        order.status = 'cancelled';
+        await order.save();
+
+        sendSuccessResponse(res, 200, {message: 'Order cancelled successfully', order});
+    } catch (error) {
+        sendErrorResponse(res, 500, 'Failed to cancel order', error);
+    }
+};
+
+
+module.exports = {getAllOrders, getOrderByID, createOrder, cancelOrder}
