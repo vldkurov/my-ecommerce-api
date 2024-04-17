@@ -66,9 +66,10 @@ const getOrderByID = async (req, res) => {
 
 const createOrder = async (req, res) => {
     const userId = req.user.userId;
+    const {cartId} = req.body;  // Accept cartId from the request body
 
     try {
-        const cart = await CartModel.findOne({
+        const queryOptions = {
             where: {userId: userId},
             include: [{
                 model: CartItemModel,
@@ -78,7 +79,13 @@ const createOrder = async (req, res) => {
                     as: 'product'
                 }]
             }]
-        });
+        };
+
+        if (cartId) {
+            queryOptions.where.cartId = cartId;  // Use cartId if provided
+        }
+
+        const cart = await CartModel.findOne(queryOptions);
 
         if (!cart) {
             return sendErrorResponse(res, 404, 'Cart not found');
@@ -91,28 +98,26 @@ const createOrder = async (req, res) => {
 
         const order = await OrderModel.create({
             userId: userId,
-            totalPrice: totalPrice.toFixed(2),  // Directly use calculated totalPrice rounded to two decimal places
+            totalPrice: totalPrice.toFixed(2),
             status: 'pending'
         });
 
         for (const item of cart.items) {
-            const itemPrice = parseFloat(item.product.price.replace(/[^0-9.-]+/g, ""));  // Remove any non-numeric characters
-
             await OrderDetailModel.create({
                 orderId: order.orderId,
                 productId: item.productId,
-                price: itemPrice,  // Use the numeric value of the price
+                price: parseFloat(item.product.price.replace(/[^0-9.-]+/g, "")),
                 quantity: item.quantity
             });
         }
 
         // Optionally clear the cart after creating an order
-        await CartItemModel.destroy({where: {cartId: cart.cartId}});
+        // await CartItemModel.destroy({where: {cartId: cart.cartId}});
 
         sendSuccessResponse(res, 201, {
             orderId: order.orderId,
             status: order.status,
-            totalPrice: formatPrice(`${totalPrice}`)  // Ensure the price is formatted correctly for the response
+            totalPrice: formatPrice(`${totalPrice}`)
         });
     } catch (error) {
         sendErrorResponse(res, 500, 'Error creating order', error);
