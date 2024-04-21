@@ -27,8 +27,12 @@ CartItemModel.belongsTo(ProductModel, {as: 'product', foreignKey: 'productId'});
 
 
 // Order and OrderDetail associations
-OrderModel.hasMany(OrderDetailModel, {foreignKey: 'orderId'});
-OrderDetailModel.belongsTo(OrderModel, {foreignKey: 'orderId'});
+// OrderModel.hasMany(OrderDetailModel, {foreignKey: 'orderId'});
+// OrderDetailModel.belongsTo(OrderModel, {foreignKey: 'orderId'});
+
+OrderModel.hasMany(OrderDetailModel, {foreignKey: 'orderId', as: 'OrderDetails'});
+OrderDetailModel.belongsTo(OrderModel, {foreignKey: 'orderId', as: 'Order'});
+
 
 // Product and CartItem (many-to-many through CartItem)
 ProductModel.belongsToMany(CartModel, {through: CartItemModel, foreignKey: 'productId'});

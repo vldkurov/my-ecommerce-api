@@ -21,7 +21,7 @@ const PORT = config.port || 3000;
 
 const {mergeYAMLFiles} = require('./utils/mergeYAMLFiles')
 
-mergeYAMLFiles()
+// mergeYAMLFiles()
 
 app.use(
     session({
@@ -88,6 +88,7 @@ const accountRoutes = require('./api/routes/accountRoutes')
 const cartRoutes = require('./api/routes/cartRoutes')
 const orderRoutes = require('./api/routes/orderRoutes')
 const {isAuthenticated} = require("./api/middlewares");
+const {handlePaymentSuccess, handlePaymentCancellation} = require("./api/controllers");
 
 
 const swaggerDocument = YAML.load(path.join(__dirname, '..', 'docs', 'api-docs.yaml'));
@@ -102,6 +103,8 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/carts', cartRoutes)
 app.use('/api/orders', orderRoutes)
 
+app.get('/success', isAuthenticated, handlePaymentSuccess);
+app.get('/cancel', isAuthenticated, handlePaymentCancellation);
 
 app.get('/', (req, res) => {
     res.send('Hello World! Welcome to The E-commerce API');
@@ -125,7 +128,7 @@ const NOT_FOUND_MESSAGE = 'Not Found';
 const INTERNAL_SERVER_ERROR_STATUS = 500;
 const NOT_FOUND_STATUS = 404;
 
-const handleErrors = (err, req, res) => {
+const handleErrors = (err, req, res, next) => {
     console.error(err.stack);
     res.status(INTERNAL_SERVER_ERROR_STATUS).send(ERROR_MESSAGE);
 };

@@ -2,6 +2,11 @@ const {OrderModel, OrderDetailModel, ProductModel, CartItemModel, CartModel} = r
 const {formatPrice, calculateTotalPrice} = require("../../utils");
 const {sendSuccessResponse, sendErrorResponse} = require("../../heplers");
 
+const config = require('../../config/config');
+
+const domainURL = config.domain_url || `http://localhost:3030`;
+const clientURL = config.client_url || `http://localhost:3000`;
+
 
 const getAllOrders = async (req, res) => {
     try {
@@ -146,5 +151,118 @@ const cancelOrder = async (req, res) => {
     }
 };
 
+const STRIPE_SECRET_KEY = config.stripe_secret
+const stripe = require('stripe')(STRIPE_SECRET_KEY);
 
-module.exports = {getAllOrders, getOrderByID, createOrder, cancelOrder}
+const createCheckoutSession = async (req, res) => {
+    const {orderId} = req.body;
+
+    const userId = req.user.userId;
+
+    try {
+
+        const order = await OrderModel.findOne({
+            where: {
+                orderId: orderId,
+                userId: userId
+            },
+            include: [{
+                model: OrderDetailModel,
+                as: 'OrderDetails',
+                include: [{
+                    model: ProductModel,
+                    as: 'Product'
+                }]
+            }]
+        });
+
+        if (!order) {
+            return res.status(404).json({error: 'Order not found or does not belong to user'});
+        }
+
+        const line_items = order.OrderDetails.map(item => ({
+            price_data: {
+                currency: 'gbp',
+                product_data: {
+                    name: item.Product.name,
+                    description: item.Product.description,
+                },
+                unit_amount: Math.round(parseFloat(item.price.replace(/[^\d.]/g, '')) * 100),
+            },
+            quantity: item.quantity,
+        }));
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items,
+            mode: 'payment',
+            success_url: `${domainURL}/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${domainURL}/cancel?session_id={CHECKOUT_SESSION_ID}`,
+            metadata: {orderId: orderId.toString()},
+        });
+
+
+        res.json({sessionId: session.id, url: session.url});
+
+    } catch (error) {
+        console.error('Failed to create checkout session:', error);
+        res.status(500).json({error: {message: error.message}});
+    }
+};
+
+
+const handlePaymentSuccess = async (req, res) => {
+    const sessionId = req.query.session_id;
+
+    try {
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+        if (session.payment_status === 'paid') {
+            const update = await OrderModel.update(
+                {status: 'completed'},
+                {where: {orderId: session.metadata.orderId}}
+            );
+
+            if (update) {  // Check if the update was successful
+                res.redirect(`${clientURL}/orders/${session.metadata.orderId}`);
+            } else {
+                throw new Error('Update failed');
+            }
+        } else {
+            res.redirect(`${domainURL}/cancel?session_id={CHECKOUT_SESSION_ID}`);
+        }
+    } catch (error) {
+        console.error('Error processing success URL:', error);
+        res.status(500).send('Error fetching orders');
+    }
+};
+
+
+const handlePaymentCancellation = async (req, res) => {
+    const sessionId = req.query.session_id;
+
+    try {
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        const orderId = session.metadata.orderId;  // Убедитесь, что metadata сохраняется при создании сессии
+
+        await OrderModel.update({status: 'cancelled'}, {
+            where: {orderId: orderId}
+        });
+
+        res.redirect(`${clientURL}/orders/${session.metadata.orderId}`);
+    } catch (error) {
+        console.error('Error cancelling payment:', error);
+        res.status(500).json({error: 'Internal Server Error'});
+    }
+};
+
+
+module.exports = {
+    getAllOrders,
+    getOrderByID,
+    createOrder,
+    cancelOrder,
+    createCheckoutSession,
+    handlePaymentSuccess,
+    handlePaymentCancellation
+}

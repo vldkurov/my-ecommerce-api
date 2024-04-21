@@ -1,5 +1,6 @@
 const {CartModel, CartItemModel, ProductModel, OrderModel, OrderDetailModel} = require('../../models')
 const {sendSuccessResponse, sendErrorResponse} = require("../../heplers");
+const {calculateTotalPrice, formatPrice} = require("../../utils");
 
 const createCart = async (req, res) => {
     const userId = req.user.userId;
@@ -83,66 +84,66 @@ const getCartContentByID = async (req, res) => {
     }
 }
 
+
 const cartCheckout = async (req, res) => {
+    const userId = req.user.userId;
     const {cartId} = req.params;
 
     try {
-        // Validate the Cart
-        const cart = await CartModel.findOne({
-            where: {cartId: cartId, userId: req.user.userId},
+        const queryOptions = {
+            where: {userId: userId},
             include: [{
                 model: CartItemModel,
                 as: 'items',
-                include: ['product']
+                include: [{
+                    model: ProductModel,
+                    as: 'product'
+                }]
             }]
-        });
+        };
+
+        if (cartId) {
+            queryOptions.where.cartId = cartId;  // Use cartId if provided
+        }
+
+        const cart = await CartModel.findOne(queryOptions);
 
         if (!cart) {
             return sendErrorResponse(res, 404, 'Cart not found');
         }
 
-        // Assuming you are inside the checkout logic
-        let totalPrice = cart.items.reduce((total, item) => {
-            // Access the raw numeric value of the price
-            const rawPrice = item.product.getDataValue('price');
-            const itemPrice = parseFloat(rawPrice);
-            return total + (item.quantity * itemPrice);
-        }, 0);
+        const totalPrice = calculateTotalPrice(cart.items.map(item => ({
+            Product: {price: item.product.price},
+            quantity: item.quantity
+        })));
 
-        // Create the Order with totalPrice
         const order = await OrderModel.create({
-            userId: req.user.userId,
-            totalPrice,
-            status: 'pending',
-            // other fields...
+            userId: userId,
+            totalPrice: totalPrice.toFixed(2),
+            status: 'pending'
         });
 
-        // Create order details for each cart item
-        await Promise.all(cart.items.map(async (item) => {
+        for (const item of cart.items) {
             await OrderDetailModel.create({
                 orderId: order.orderId,
                 productId: item.productId,
-                quantity: item.quantity,
-                price: parseFloat(item.product.price)
+                price: parseFloat(item.product.price.replace(/[^0-9.-]+/g, "")),
+                quantity: item.quantity
             });
-        }));
+        }
 
-        // Optionally, clear the cart after checkout
-        await CartItemModel.destroy({where: {cartId}});
+        // Optionally clear the cart after creating an order
+        await CartItemModel.destroy({where: {cartId: cart.cartId}});
 
-        const formattedTotalPrice = isNaN(totalPrice) ? "£0.00" : `£${totalPrice.toFixed(2)}`;
-
-        const response = {
-            ...order.get({plain: true}),
-            totalPrice: formattedTotalPrice,
-        };
-
-        sendSuccessResponse(res, 201, response);
-
+        sendSuccessResponse(res, 201, {
+            orderId: order.orderId,
+            status: order.status,
+            totalPrice: formatPrice(`${totalPrice}`)
+        });
     } catch (error) {
-        sendErrorResponse(res, 500, 'Error processing checkout', error);
+        sendErrorResponse(res, 500, 'Error creating order', error);
     }
-}
+};
 
 const deleteProductFromCart = async (req, res) => {
     const {cartId, cartItemId} = req.params;
