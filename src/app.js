@@ -1,5 +1,6 @@
 require('dotenv').config({path: '../.env'});
 const config = require('./config/config');
+const bcrypt = require('bcryptjs');
 
 const express = require('express');
 const path = require('path');
@@ -39,7 +40,7 @@ app.use(
 
 // CORS configuration
 const corsOptions = {
-    origin: 'http://localhost:3000', // Allow only this origin to send requests
+    origin: config.client_url, // Allow only this origin to send requests
     credentials: true, // Allow cookies and credentials
 };
 
@@ -74,6 +75,47 @@ passport.use(new LocalStrategy({
         usernameField: 'email',
         passwordField: 'password',
     }, localStrategy
+));
+
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
+passport.use(new GoogleStrategy({
+        clientID: config.google_oauth_client_id,
+        clientSecret: config.google_oauth_client_secret,
+        callbackURL: `${config.domain_url}/api/users/auth/google/callback`
+
+    },
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            const email = profile.emails[0].value;
+
+            // Check if user already exists in your database
+            let user = await UserModel.findOne({
+                where: {email: email}
+            });
+
+            if (user) {
+                return done(null, user);  // User found, return that user
+            } else {
+                // If not, create user in your database
+                const bcrypt = require('bcryptjs');
+                const saltRounds = 10;
+                const hashedPassword = await bcrypt.hash(config.google_dummy_password, saltRounds);
+                user = await UserModel.create({
+                    googleId: profile.id,
+                    email: email,
+                    firstName: profile.name.givenName,
+                    lastName: profile.name.familyName,
+                    password: hashedPassword // This should be handled securely
+                    // You may not have passwords or other fields, handle according to your schema
+                });
+                return done(null, user);  // User created, return new user
+            }
+        } catch (error) {
+            console.error('Error connecting with Google strategy', error);
+            done(error, null);
+        }
+    }
 ));
 
 

@@ -243,7 +243,7 @@ const handlePaymentCancellation = async (req, res) => {
 
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
-        const orderId = session.metadata.orderId;  // Убедитесь, что metadata сохраняется при создании сессии
+        const orderId = session.metadata.orderId;
 
         await OrderModel.update({status: 'cancelled'}, {
             where: {orderId: orderId}

@@ -13,6 +13,9 @@ const environments = {
         dialect: process.env.DB_DIALECT,
         secret: process.env.SECRET,
         jwt_secret: process.env.JWT_SECRET,
+        google_oauth_client_id: process.env.GOOGLE_OAUTH_CLIENT_ID,
+        google_oauth_client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+        google_dummy_password: process.env.GOOGLE_DUMMY_PASSWORD,
         stripe_secret: process.env.STRIPE_SECRET_KEY,
     },
     production: {
@@ -26,6 +29,9 @@ const environments = {
         dialect: process.env.PROD_DB_DIALECT,
         secret: process.env.PROD_SECRET,
         jwt_secret: process.env.PROD_JWT_SECRET,
+        google_oauth_client_id: process.env.GOOGLE_OAUTH_CLIENT_ID,
+        google_oauth_client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+        google_dummy_password: process.env.GOOGLE_DUMMY_PASSWORD,
         stripe_secret: process.env.STRIPE_SECRET_KEY,
     },
     // other environments...
