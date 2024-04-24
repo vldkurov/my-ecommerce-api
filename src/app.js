@@ -1,5 +1,6 @@
 require('dotenv').config({path: '../.env'});
 const config = require('./config/config');
+const bcrypt = require('bcryptjs');
 
 const express = require('express');
 const path = require('path');
@@ -8,20 +9,44 @@ const cors = require('cors');
 const flash = require('connect-flash');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
-const passport = require('passport');
+const cookieParser = require("cookie-parser");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const session = require("express-session");
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
-const {sequelize} = require("./models");
-require('./config/passport')(passport);
+const {sequelize, UserModel} = require("./models");
+const {localStrategy} = require("./api/controllers/userController");
 
 const PORT = config.port || 3000;
 
 const {mergeYAMLFiles} = require('./utils/mergeYAMLFiles')
 
-mergeYAMLFiles()
+// mergeYAMLFiles()
+
+app.use(
+    session({
+        secret: 'yourSecretKey',
+        resave: false,
+        saveUninitialized: true,
+        cookie: {
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 1000 * 60 * 60 * 24, // Example: 24 hours
+            httpOnly: true,
+            SameSite: 'Strict'
+        }
+    })
+);
+
+// CORS configuration
+const corsOptions = {
+    origin: config.client_url, // Allow only this origin to send requests
+    credentials: true, // Allow cookies and credentials
+};
 
 app.use(flash());
-app.use(cors());
+app.use(cors(corsOptions));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
@@ -29,8 +54,70 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.static('public'));
 
 
-// Passport middleware
 app.use(passport.initialize());
+// Add the middleware to implement a session with passport below:
+app.use(passport.session());
+// Complete the serializeUser function below:
+passport.serializeUser((user, done) => {
+    done(null, user.userId);
+});
+// Complete the deserializeUser function below:
+passport.deserializeUser((userId, done) => {
+    UserModel.findByPk(userId).then(user => {
+        done(null, user);
+    }).catch(err => {
+        done(err);
+    });
+});
+
+// Add your passport local strategy below:
+passport.use(new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'password',
+    }, localStrategy
+));
+
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
+passport.use(new GoogleStrategy({
+        clientID: config.google_oauth_client_id,
+        clientSecret: config.google_oauth_client_secret,
+        callbackURL: `${config.domain_url}/api/users/auth/google/callback`
+
+    },
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            const email = profile.emails[0].value;
+
+            // Check if user already exists in your database
+            let user = await UserModel.findOne({
+                where: {email: email}
+            });
+
+            if (user) {
+                return done(null, user);  // User found, return that user
+            } else {
+                // If not, create user in your database
+                const bcrypt = require('bcryptjs');
+                const saltRounds = 10;
+                const hashedPassword = await bcrypt.hash(config.google_dummy_password, saltRounds);
+                user = await UserModel.create({
+                    googleId: profile.id,
+                    email: email,
+                    firstName: profile.name.givenName,
+                    lastName: profile.name.familyName,
+                    password: hashedPassword // This should be handled securely
+                    // You may not have passwords or other fields, handle according to your schema
+                });
+                return done(null, user);  // User created, return new user
+            }
+        } catch (error) {
+            console.error('Error connecting with Google strategy', error);
+            done(error, null);
+        }
+    }
+));
+
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -43,6 +130,8 @@ const accountRoutes = require('./api/routes/accountRoutes')
 const cartRoutes = require('./api/routes/cartRoutes')
 const orderRoutes = require('./api/routes/orderRoutes')
 const {isAuthenticated} = require("./api/middlewares");
+const {handlePaymentSuccess, handlePaymentCancellation} = require("./api/controllers");
+
 
 const swaggerDocument = YAML.load(path.join(__dirname, '..', 'docs', 'api-docs.yaml'));
 
@@ -56,6 +145,8 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/carts', cartRoutes)
 app.use('/api/orders', orderRoutes)
 
+app.get('/success', isAuthenticated, handlePaymentSuccess);
+app.get('/cancel', isAuthenticated, handlePaymentCancellation);
 
 app.get('/', (req, res) => {
     res.send('Hello World! Welcome to The E-commerce API');
@@ -79,7 +170,7 @@ const NOT_FOUND_MESSAGE = 'Not Found';
 const INTERNAL_SERVER_ERROR_STATUS = 500;
 const NOT_FOUND_STATUS = 404;
 
-const handleErrors = (err, req, res) => {
+const handleErrors = (err, req, res, next) => {
     console.error(err.stack);
     res.status(INTERNAL_SERVER_ERROR_STATUS).send(ERROR_MESSAGE);
 };

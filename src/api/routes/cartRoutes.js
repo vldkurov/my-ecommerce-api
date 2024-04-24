@@ -1,19 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const {isAuthenticated} = require("../middlewares");
-const {createCart, addProductToCart, getCartContentByID, cartCheckout} = require("../controllers");
+const {
+    createCart,
+    addProductToCart,
+    getCartContentByID,
+    cartCheckout,
+    deleteProductFromCart
+} = require("../controllers");
 
-// POST /cart - Create a New Cart
+// POST /carts - Create a New Cart
 router.post('/', isAuthenticated, createCart);
 
-// POST /cart/{cartId} - Add Products to a Cart
+// POST /carts/{cartId} - Add Products to a Cart
 router.post('/:cartId', isAuthenticated, addProductToCart);
 
-// GET /cart/{cartId} - Retrieve a Cart's Contents
+// GET /carts/{cartId} - Retrieve a Cart's Contents
 router.get('/:cartId', isAuthenticated, getCartContentByID);
 
-// POST /cart/{cartId}/checkout
+// POST /carts/{cartId}/checkout
 router.post('/:cartId/checkout', isAuthenticated, cartCheckout);
+
+// DELETE /carts/{cartId}/items/{cartItemId} - Delete a Product from a Cart
+router.delete('/:cartId/items/:cartItemId', isAuthenticated, deleteProductFromCart);
 
 
 module.exports = router;

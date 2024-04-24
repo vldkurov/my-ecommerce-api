@@ -1,6 +1,16 @@
 const {CategoryModel, ProductModel} = require("../../models");
 const {findCategoryByName, sendSuccessResponse, sendErrorResponse} = require("../../heplers");
 
+
+const getAllCategory = async (req, res) => {
+    try {
+        const categories = await CategoryModel.findAll({attributes: ['categoryId', 'name', 'description']});
+        sendSuccessResponse(res, 200, categories);
+    } catch (error) {
+        sendErrorResponse(res, 500, 'Internal Server Error');
+    }
+};
+
 const getProductByCategory = async (req, res) => {
     const {category} = req.query;
     try {
@@ -74,4 +84,11 @@ const deleteProductByID = async (req, res) => {
     }
 };
 
-module.exports = {getProductByCategory, getProductByID, createProduct, updateProductByID, deleteProductByID};
+module.exports = {
+    getProductByCategory,
+    getProductByID,
+    createProduct,
+    updateProductByID,
+    deleteProductByID,
+    getAllCategory
+};

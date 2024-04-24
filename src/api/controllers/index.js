@@ -1,5 +1,6 @@
-const {registerUser, loginUser, logoutUser} = require('./userController');
+const {registerUser, loginUser, logoutUser, checkUser} = require('./userController');
 const {
+    getAllCategory,
     getProductByCategory,
     getProductByID,
     createProduct,
@@ -7,8 +8,21 @@ const {
     deleteProductByID
 } = require('./productController')
 const {getAllUsers, getUserByID, updateUserByID} = require('./accountController')
-const {createCart, addProductToCart, getCartContentByID, cartCheckout} = require('./cartController')
-const {getAllOrders, getOrderByID} = require('./orderController')
+const {
+    createCart,
+    addProductToCart,
+    getCartContentByID,
+    cartCheckout,
+    deleteProductFromCart
+} = require('./cartController')
+const {
+    getAllOrders,
+    getOrderByID,
+    createOrder,
+    cancelOrder,
+    createCharge, createCheckoutSession, handlePaymentSuccess, handlePaymentCancellation,
+    // confirmOrderPayment
+} = require('./orderController')
 
 
 module.exports = {
@@ -16,7 +30,9 @@ module.exports = {
     registerUser,
     loginUser,
     logoutUser,
+    checkUser,
     // Product
+    getAllCategory,
     getProductByCategory,
     getProductByID,
     createProduct,
@@ -31,7 +47,15 @@ module.exports = {
     addProductToCart,
     getCartContentByID,
     cartCheckout,
+    deleteProductFromCart,
     // Order
     getAllOrders,
-    getOrderByID
+    getOrderByID,
+    createOrder,
+    cancelOrder,
+    createCheckoutSession,
+    handlePaymentSuccess,
+    handlePaymentCancellation
+    // createCharge,
+    // confirmOrderPayment
 };

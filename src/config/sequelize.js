@@ -3,6 +3,7 @@ const config = require('./config');
 
 const useSSL = process.env.NODE_ENV === 'production';
 
+
 const sequelizeOptions = {
     host: config.host,
     dialect: config.dialect,
