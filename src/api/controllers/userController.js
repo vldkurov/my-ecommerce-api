@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const {sequelize, UserModel, CartModel} = require("../../models");
 const {findByEmail} = require("../../heplers");
 const passport = require("passport");
-// const cart = require("express-session/session/cookie");
 
 
 const localStrategy = async function (email, password, done) {
