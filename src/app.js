@@ -1,6 +1,5 @@
 require('dotenv').config({path: '../.env'});
 const config = require('./config/config');
-const bcrypt = require('bcryptjs');
 
 const express = require('express');
 const path = require('path');
@@ -22,7 +21,7 @@ const PORT = config.port || 3000;
 
 const {mergeYAMLFiles} = require('./utils/mergeYAMLFiles')
 
-// mergeYAMLFiles()
+mergeYAMLFiles()
 
 app.use(
     session({
@@ -40,7 +39,8 @@ app.use(
 
 // CORS configuration
 const corsOptions = {
-    origin: config.client_url, // Allow only this origin to send requests
+    // origin: config.client_url, // Allow only this origin to send requests
+    origin: true,
     credentials: true, // Allow cookies and credentials
 };
 
@@ -170,7 +170,7 @@ const NOT_FOUND_MESSAGE = 'Not Found';
 const INTERNAL_SERVER_ERROR_STATUS = 500;
 const NOT_FOUND_STATUS = 404;
 
-const handleErrors = (err, req, res, next) => {
+const handleErrors = (err, req, res) => {
     console.error(err.stack);
     res.status(INTERNAL_SERVER_ERROR_STATUS).send(ERROR_MESSAGE);
 };
