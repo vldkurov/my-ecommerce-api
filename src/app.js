@@ -39,8 +39,8 @@ app.use(
 
 // CORS configuration
 const corsOptions = {
-    // origin: config.client_url, // Allow only this origin to send requests
-    origin: true,
+    origin: config.client_url, // Allow only this origin to send requests
+    // origin: true,
     credentials: true, // Allow cookies and credentials
 };
 
