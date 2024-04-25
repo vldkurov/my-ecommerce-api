@@ -64,7 +64,7 @@ app.use(
 //     }
 // }));
 
-// const whitelist = ['https://thunderous-moxie-f4ffbe.netlify.app', 'https://main--thunderous-moxie-f4ffbe.netlify.app', 'https://my-ecommerce-client.vercel.app'];
+const whitelist = ['https://thunderous-moxie-f4ffbe.netlify.app', 'https://main--thunderous-moxie-f4ffbe.netlify.app', 'https://my-ecommerce-client.vercel.app'];
 
 
 // CORS configuration
@@ -104,7 +104,16 @@ app.use(
 // };
 
 const corsOptions = {
-    origin: true, // Разрешить все домены
+    origin: function (origin, callback) {
+        console.log("Origin of request " + origin);
+        if (whitelist.indexOf(origin) !== -1 || !origin) {
+            console.log("Origin permissible");
+            callback(null, true);
+        } else {
+            console.log("Origin blocked by CORS");
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true, // Разрешить отправку куки с запросами
     Headers: true,
     methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS', 'PATCH'],
