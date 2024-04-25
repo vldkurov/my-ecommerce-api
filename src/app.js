@@ -69,6 +69,8 @@ const corsOptions = {
         }
     },
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie'],
+    exposedHeaders: ['Set-Cookie'],
 };
 
 app.use(flash());
