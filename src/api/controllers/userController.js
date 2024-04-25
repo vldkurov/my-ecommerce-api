@@ -135,10 +135,6 @@ const checkUser = async (req, res) => {
 
     res.json({
         isAuthenticated: true,
-        // user: {
-        //     id: req.user.userId, // Example of sending back user ID
-        //     // Add any other user info you wish to return
-        // }
         user: {
             id: req.user.userId,
             email: req.user.email,

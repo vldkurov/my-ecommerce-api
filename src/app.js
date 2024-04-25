@@ -23,17 +23,31 @@ const PORT = config.port || 3000;
 
 // mergeYAMLFiles()
 
+// app.use(
+//     session({
+//         secret: 'yourSecretKey',
+//         resave: false,
+//         saveUninitialized: true,
+//         cookie: {
+//             secure: process.env.NODE_ENV === "production",
+//             maxAge: 1000 * 60 * 60 * 24, // Example: 24 hours
+//             httpOnly: true,
+//             SameSite: process.env.NODE_ENV === "production" ? 'None' : 'Lax' // 'None' requires secure to be true
+//             // SameSite: 'Strict'
+//         }
+//     })
+// );
+
 app.use(
     session({
         secret: 'yourSecretKey',
         resave: false,
         saveUninitialized: true,
         cookie: {
-            secure: process.env.NODE_ENV === "production",
+            secure: process.env.NODE_ENV === "production", // should be true if using https
             maxAge: 1000 * 60 * 60 * 24, // Example: 24 hours
             httpOnly: true,
-            SameSite: process.env.NODE_ENV === "production" ? 'None' : 'Lax' // 'None' requires secure to be true
-            // SameSite: 'Strict'
+            sameSite: 'none' // important if your API and client are on different origins
         }
     })
 );
