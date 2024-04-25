@@ -5,6 +5,8 @@ const {calculateTotalPrice, formatPrice} = require("../../utils");
 const createCart = async (req, res) => {
     const userId = req.user.userId;
 
+    console.log('api userId', userId);
+
     try {
         let cart = await CartModel.findOne({where: {userId}});
         if (!cart) {
