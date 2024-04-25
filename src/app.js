@@ -19,7 +19,7 @@ const {localStrategy} = require("./api/controllers/userController");
 
 const PORT = config.port || 3000;
 
-const {mergeYAMLFiles} = require('./utils/mergeYAMLFiles')
+// const {mergeYAMLFiles} = require('./utils/mergeYAMLFiles')
 
 mergeYAMLFiles()
 
