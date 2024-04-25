@@ -47,8 +47,7 @@ app.use(
             secure: process.env.NODE_ENV === "production", // should be true if using https
             maxAge: 1000 * 60 * 60 * 24, // Example: 24 hours
             httpOnly: true,
-            // sameSite: 'none' // important if your API and client are on different origins
-            same_site: true
+            sameSite: 'none' // important if your API and client are on different origins
         }
     })
 );
@@ -107,8 +106,15 @@ app.use(
 const corsOptions = {
     origin: true, // Разрешить все домены
     credentials: true, // Разрешить отправку куки с запросами
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie'],
-    exposedHeaders: ['Set-Cookie']
+    Headers: true,
+    methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS', 'PATCH'],
+    // allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie'],
+    allowedHeaders: [
+        'Access-Control-Allow-Origin',
+        'Content-Type',
+        'Authorization'
+    ],
+    exposedHeaders: 'Set-Cookie'
 };
 
 
