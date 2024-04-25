@@ -40,6 +40,7 @@ const PORT = config.port || 3000;
 
 app.use(
     session({
+        domain: 'https://the-e-commerce-api.onrender.com',
         secret: 'yourSecretKey',
         resave: false,
         saveUninitialized: true,
