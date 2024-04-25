@@ -50,11 +50,25 @@ app.use(
 //     }
 // }));
 
+const whitelist = ['https://thunderous-moxie-f4ffbe.netlify.app', 'https://main--thunderous-moxie-f4ffbe.netlify.app'];
+
+
 // CORS configuration
+// const corsOptions = {
+//     origin: config.client_url, // Allow only this origin to send requests
+//     // origin: true,
+//     credentials: true, // Allow cookies and credentials
+// };
+
 const corsOptions = {
-    origin: config.client_url, // Allow only this origin to send requests
-    // origin: true,
-    credentials: true, // Allow cookies and credentials
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
 };
 
 app.use(flash());
