@@ -21,7 +21,7 @@ const PORT = config.port || 3000;
 
 // const {mergeYAMLFiles} = require('./utils/mergeYAMLFiles')
 
-mergeYAMLFiles()
+// mergeYAMLFiles()
 
 app.use(
     session({
