@@ -50,7 +50,7 @@ app.use(
 //     }
 // }));
 
-const whitelist = ['https://thunderous-moxie-f4ffbe.netlify.app', 'https://main--thunderous-moxie-f4ffbe.netlify.app'];
+const whitelist = ['https://thunderous-moxie-f4ffbe.netlify.app', 'https://main--thunderous-moxie-f4ffbe.netlify.app', 'https://my-ecommerce-client.vercel.app'];
 
 
 // CORS configuration
