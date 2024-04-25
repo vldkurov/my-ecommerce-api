@@ -47,7 +47,8 @@ app.use(
             secure: process.env.NODE_ENV === "production", // should be true if using https
             maxAge: 1000 * 60 * 60 * 24, // Example: 24 hours
             httpOnly: true,
-            sameSite: 'none' // important if your API and client are on different origins
+            // sameSite: 'none' // important if your API and client are on different origins
+            same_site: true
         }
     })
 );
