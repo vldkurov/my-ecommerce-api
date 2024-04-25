@@ -23,87 +23,26 @@ const PORT = config.port || 3000;
 
 // mergeYAMLFiles()
 
-// app.use(
-//     session({
-//         secret: 'yourSecretKey',
-//         resave: false,
-//         saveUninitialized: true,
-//         cookie: {
-//             secure: process.env.NODE_ENV === "production",
-//             maxAge: 1000 * 60 * 60 * 24, // Example: 24 hours
-//             httpOnly: true,
-//             SameSite: process.env.NODE_ENV === "production" ? 'None' : 'Lax' // 'None' requires secure to be true
-//             // SameSite: 'Strict'
-//         }
-//     })
-// );
-
 app.use(
     session({
-        domain: 'https://the-e-commerce-api.onrender.com',
         secret: 'yourSecretKey',
+        domain: 'https://the-e-commerce-api.onrender.com',
         resave: false,
         saveUninitialized: true,
         cookie: {
-            secure: process.env.NODE_ENV === "production", // should be true if using https
+            secure: process.env.NODE_ENV === "production",
             maxAge: 1000 * 60 * 60 * 24, // Example: 24 hours
             httpOnly: true,
-            sameSite: 'none' // important if your API and client are on different origins
+            SameSite: process.env.NODE_ENV === "production" ? 'None' : 'Lax' // 'None' requires secure to be true
         }
     })
 );
 
-// app.use(session({
-//     secret: 'yourSecretKey',
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: {
-//         secure: true,  // Set to true if using https
-//         httpOnly: true,
-//         domain: 'netlify.app',  // Adjust based on your deployment
-//         maxAge: 1000 * 60 * 60 * 24  // Example: 24 hours
-//     }
-// }));
 
 const whitelist = ['https://thunderous-moxie-f4ffbe.netlify.app', 'https://main--thunderous-moxie-f4ffbe.netlify.app', 'https://my-ecommerce-client.vercel.app'];
 
 
 // CORS configuration
-// const corsOptions = {
-//     origin: config.client_url, // Allow only this origin to send requests
-//     // origin: true,
-//     credentials: true, // Allow cookies and credentials
-// };
-
-// const corsOptions = {
-//     origin: function (origin, callback) {
-//         if (whitelist.indexOf(origin) !== -1 || !origin) {
-//             callback(null, true);
-//         } else {
-//             callback(new Error('Not allowed by CORS'));
-//         }
-//     },
-//     credentials: true,
-//     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie'],
-//     exposedHeaders: ['Set-Cookie'],
-// };
-
-// const corsOptions = {
-//     origin: function (origin, callback) {
-//         console.log("Origin of request " + origin);
-//         if (whitelist.indexOf(origin) !== -1 || !origin) {
-//             console.log("Origin permissible");
-//             callback(null, true);
-//         } else {
-//             console.log("Origin blocked by CORS");
-//             callback(new Error('Not allowed by CORS'));
-//         }
-//     },
-//     credentials: true,
-//     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie'],
-//     exposedHeaders: ['Set-Cookie'],
-// };
-
 const corsOptions = {
     origin: function (origin, callback) {
         console.log("Origin of request " + origin);
@@ -118,7 +57,6 @@ const corsOptions = {
     credentials: true, // Разрешить отправку куки с запросами
     Headers: true,
     methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS', 'PATCH'],
-    // allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie'],
     allowedHeaders: [
         'Access-Control-Allow-Origin',
         'Content-Type',
