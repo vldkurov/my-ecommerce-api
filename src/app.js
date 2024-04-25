@@ -32,10 +32,23 @@ app.use(
             secure: process.env.NODE_ENV === "production",
             maxAge: 1000 * 60 * 60 * 24, // Example: 24 hours
             httpOnly: true,
-            SameSite: 'Strict'
+            SameSite: process.env.NODE_ENV === "production" ? 'None' : 'Lax' // 'None' requires secure to be true
+            // SameSite: 'Strict'
         }
     })
 );
+
+// app.use(session({
+//     secret: 'yourSecretKey',
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: {
+//         secure: true,  // Set to true if using https
+//         httpOnly: true,
+//         domain: 'netlify.app',  // Adjust based on your deployment
+//         maxAge: 1000 * 60 * 60 * 24  // Example: 24 hours
+//     }
+// }));
 
 // CORS configuration
 const corsOptions = {
