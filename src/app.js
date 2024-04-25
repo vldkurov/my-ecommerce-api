@@ -64,7 +64,7 @@ app.use(
 //     }
 // }));
 
-const whitelist = ['https://thunderous-moxie-f4ffbe.netlify.app', 'https://main--thunderous-moxie-f4ffbe.netlify.app', 'https://my-ecommerce-client.vercel.app'];
+// const whitelist = ['https://thunderous-moxie-f4ffbe.netlify.app', 'https://main--thunderous-moxie-f4ffbe.netlify.app', 'https://my-ecommerce-client.vercel.app'];
 
 
 // CORS configuration
@@ -87,21 +87,29 @@ const whitelist = ['https://thunderous-moxie-f4ffbe.netlify.app', 'https://main-
 //     exposedHeaders: ['Set-Cookie'],
 // };
 
+// const corsOptions = {
+//     origin: function (origin, callback) {
+//         console.log("Origin of request " + origin);
+//         if (whitelist.indexOf(origin) !== -1 || !origin) {
+//             console.log("Origin permissible");
+//             callback(null, true);
+//         } else {
+//             console.log("Origin blocked by CORS");
+//             callback(new Error('Not allowed by CORS'));
+//         }
+//     },
+//     credentials: true,
+//     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie'],
+//     exposedHeaders: ['Set-Cookie'],
+// };
+
 const corsOptions = {
-    origin: function (origin, callback) {
-        console.log("Origin of request " + origin);
-        if (whitelist.indexOf(origin) !== -1 || !origin) {
-            console.log("Origin permissible");
-            callback(null, true);
-        } else {
-            console.log("Origin blocked by CORS");
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
+    origin: true, // Разрешить все домены
+    credentials: true, // Разрешить отправку куки с запросами
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Cookie'],
-    exposedHeaders: ['Set-Cookie'],
+    exposedHeaders: ['Set-Cookie']
 };
+
 
 app.use(flash());
 app.use(cors(corsOptions));
