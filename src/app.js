@@ -112,9 +112,10 @@ const corsOptions = {
     allowedHeaders: [
         'Access-Control-Allow-Origin',
         'Content-Type',
-        'Authorization'
+        'Authorization',
+        'Cookie'
     ],
-    exposedHeaders: 'Set-Cookie'
+    exposedHeaders: ['Set-Cookie']
 };
 
 
