@@ -1,5 +1,6 @@
 const {DataTypes} = require('sequelize');
 const sequelize = require('../config/sequelize'); // Adjust the path as necessary
+const bcrypt = require('bcryptjs');
 
 const User = sequelize.define('User', {
     userId: {
@@ -16,7 +17,10 @@ const User = sequelize.define('User', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
+        validate: {
+            isEmail: true,
+        }
     },
     password: {
         type: DataTypes.STRING,
@@ -34,8 +38,18 @@ const User = sequelize.define('User', {
     }
 }, {
     // Sequelize options
+    hooks: {
+        beforeCreate: async (user) => {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(user.password, salt);
+        }
+    },
     timestamps: true, // if you are managing timestamps manually
     tableName: 'users',
 });
+
+User.prototype.validatePassword = function (password) {
+    return bcrypt.compare(password, this.password);
+};
 
 module.exports = User;

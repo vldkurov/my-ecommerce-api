@@ -16,6 +16,7 @@ const createCart = async (req, res) => {
     }
 }
 
+
 const addProductToCart = async (req, res) => {
     const {cartId} = req.params;
     const {productId, quantity} = req.body;
