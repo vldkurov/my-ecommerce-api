@@ -214,6 +214,10 @@ const createCheckoutSession = async (req, res) => {
 const handlePaymentSuccess = async (req, res) => {
     const sessionId = req.query.session_id;
 
+    console.log('handlePaymentSuccess req.query', req.query);
+
+    console.log('sessionId', sessionId);
+
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
 
@@ -223,10 +227,16 @@ const handlePaymentSuccess = async (req, res) => {
                 {where: {orderId: session.metadata.orderId}}
             );
 
-            if (update) {  // Check if the update was successful
+            // if (update) {  // Check if the update was successful
+            //     res.redirect(`${clientURL}/orders/${session.metadata.orderId}`);
+            // } else {
+            //     throw new Error('Update failed');
+            // }
+            if (update) {
                 res.redirect(`${clientURL}/orders/${session.metadata.orderId}`);
             } else {
-                throw new Error('Update failed');
+                console.error('Update failed');
+                res.status(500).send('Failed to update order status');
             }
         } else {
             res.redirect(`${domainURL}/cancel?session_id={CHECKOUT_SESSION_ID}`);

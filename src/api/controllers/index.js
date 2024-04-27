@@ -1,4 +1,4 @@
-const {registerUser, loginUser, logoutUser, checkUser} = require('./userController');
+const {registerUser, loginUser, logoutUser, checkUser, refreshToken} = require('./userController');
 const {
     getAllCategory,
     getProductByCategory,
@@ -20,8 +20,7 @@ const {
     getOrderByID,
     createOrder,
     cancelOrder,
-    createCharge, createCheckoutSession, handlePaymentSuccess, handlePaymentCancellation,
-    // confirmOrderPayment
+    createCheckoutSession, handlePaymentSuccess, handlePaymentCancellation,
 } = require('./orderController')
 
 
@@ -31,6 +30,7 @@ module.exports = {
     loginUser,
     logoutUser,
     checkUser,
+    refreshToken,
     // Product
     getAllCategory,
     getProductByCategory,
@@ -56,6 +56,4 @@ module.exports = {
     createCheckoutSession,
     handlePaymentSuccess,
     handlePaymentCancellation
-    // createCharge,
-    // confirmOrderPayment
 };
