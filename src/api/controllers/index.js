@@ -1,4 +1,4 @@
-const {registerUser, loginUser, logoutUser, checkUser, refreshToken} = require('./userController');
+const {registerUser, loginUser, logoutUser, checkUser, refreshToken, googleOAuth} = require('./userController');
 const {
     getAllCategory,
     getProductByCategory,
@@ -31,6 +31,7 @@ module.exports = {
     logoutUser,
     checkUser,
     refreshToken,
+    googleOAuth,
     // Product
     getAllCategory,
     getProductByCategory,

@@ -14,7 +14,7 @@ const getAllUsers = async (req, res) => {
 
 const getUserByID = async (req, res) => {
     const {userId} = req.params;
-    // Check if the requested userId matches the logged in user's id or if the user is an admin
+    // Check if the requested userId matches the logged-in user's id or if the user is an admin
     if (req.user.userId === parseInt(userId) || req.user.role === 'admin') {
         try {
             const user = await UserModel.findOne({

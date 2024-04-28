@@ -227,11 +227,6 @@ const handlePaymentSuccess = async (req, res) => {
                 {where: {orderId: session.metadata.orderId}}
             );
 
-            // if (update) {  // Check if the update was successful
-            //     res.redirect(`${clientURL}/orders/${session.metadata.orderId}`);
-            // } else {
-            //     throw new Error('Update failed');
-            // }
             if (update) {
                 res.redirect(`${clientURL}/orders/${session.metadata.orderId}`);
             } else {
