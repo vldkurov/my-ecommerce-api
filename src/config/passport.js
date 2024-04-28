@@ -1,8 +1,12 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const {Strategy: JwtStrategy, ExtractJwt} = require('passport-jwt');
 const {jwtSecret} = require('../utils/tokenUtils');
 const {UserModel} = require("../models");
+const config = require("./config");
+const bcrypt = require("bcryptjs");
+const {generateAccessToken, generateRefreshToken} = require("../utils");
 
 console.log("Configuring passport...");
 
@@ -36,4 +40,38 @@ passport.use(new JwtStrategy({
         return done(error);
     }
 }));
+
+
+passport.use(new GoogleStrategy({
+        clientID: config.google_oauth_client_id,
+        clientSecret: config.google_oauth_client_secret,
+        callbackURL: `${config.domain_url}/api/users/auth/google/callback`
+    },
+    async (accessToken, refreshToken, profile, done) => {
+
+        try {
+            const email = profile.emails[0].value;
+            let user = await UserModel.findOne({where: {email: email}});
+
+
+            if (!user) {
+                const hashedPassword = await bcrypt.hash(config.google_dummy_password, 10);
+                user = await UserModel.create({
+                    email: email,
+                    firstName: profile.name.givenName,
+                    lastName: profile.name.familyName,
+                    password: hashedPassword,
+                });
+            }
+
+            const accessToken = generateAccessToken(user);
+            const refreshToken = generateRefreshToken(user);
+
+            return done(null, {user, accessToken, refreshToken});
+        } catch (error) {
+            console.error("Error in Google Authentication", error);
+            return done(error, null);
+        }
+    }
+));
 
