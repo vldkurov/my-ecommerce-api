@@ -14,6 +14,7 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const sequelize = require('./config/sequelize');
 const bcrypt = require('bcryptjs');
+const helmet = require('helmet');
 require('./config/passport');
 
 
@@ -53,6 +54,17 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
+
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],  // Allows inline scripts
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: [],
+        }
+    }
+}));
 
 // app.use('/static', express.static('public'));
 app.use(express.static('public'));
@@ -100,40 +112,76 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 //     }
 // ));
 
+// passport.use(new GoogleStrategy({
+//         clientID: config.google_oauth_client_id,
+//         clientSecret: config.google_oauth_client_secret,
+//         callbackURL: `${config.domain_url}/api/users/auth/google/callback`
+//     },
+//     async (accessToken, refreshToken, profile, done) => {
+//         try {
+//             // let user = await User.findOne({googleId: profile.id});
+//             const email = profile.emails[0].value; // Email from Google profile
+//             let user = await UserModel.findOne({where: {email: email}});
+//             if (!user) {
+//                 const saltRounds = 10;
+//                 const hashedPassword = await bcrypt.hash(config.google_dummy_password, saltRounds);
+//                 user = await UserModel.create({
+//                     userId: profile.id,
+//                     email: profile.emails[0].value,
+//                     firstName: profile.name.givenName,
+//                     lastName: profile.name.familyName,
+//                     password: hashedPassword,
+//                     // Add any other user details you need in your database
+//                 });
+//             }
+//
+//             // Generate JWT tokens here
+//             // const userPayload = {id: user.id, email: user.email};
+//             // const newAccessToken = jwt.sign(userPayload, process.env.JWT_SECRET, {expiresIn: '1h'});
+//             // const newRefreshToken = jwt.sign(userPayload, process.env.JWT_REFRESH_SECRET, {expiresIn: '24h'});
+//
+//             const accessToken = generateAccessToken(user);
+//             const refreshToken = generateRefreshToken(user);
+//
+//             // return done(null, {user, accessToken: newAccessToken, refreshToken: newRefreshToken});
+//             return done(null, {user, accessToken, refreshToken});
+//         } catch (error) {
+//             return done(error, null);
+//         }
+//     }
+// ));
+
 passport.use(new GoogleStrategy({
         clientID: config.google_oauth_client_id,
         clientSecret: config.google_oauth_client_secret,
         callbackURL: `${config.domain_url}/api/users/auth/google/callback`
     },
     async (accessToken, refreshToken, profile, done) => {
+
+        // console.log('GoogleStrategy profile', profile)
         try {
-            // let user = await User.findOne({googleId: profile.id});
-            const email = profile.emails[0].value; // Email from Google profile
+            const email = profile.emails[0].value;
             let user = await UserModel.findOne({where: {email: email}});
+
+            // console.log('GoogleStrategy email', email)
+            // console.log('GoogleStrategy user', user)
+
             if (!user) {
-                const saltRounds = 10;
-                const hashedPassword = await bcrypt.hash(config.google_dummy_password, saltRounds);
+                const hashedPassword = await bcrypt.hash(config.google_dummy_password, 10);
                 user = await UserModel.create({
-                    userId: profile.id,
-                    email: profile.emails[0].value,
+                    email: email,
                     firstName: profile.name.givenName,
                     lastName: profile.name.familyName,
                     password: hashedPassword,
-                    // Add any other user details you need in your database
                 });
             }
-
-            // Generate JWT tokens here
-            // const userPayload = {id: user.id, email: user.email};
-            // const newAccessToken = jwt.sign(userPayload, process.env.JWT_SECRET, {expiresIn: '1h'});
-            // const newRefreshToken = jwt.sign(userPayload, process.env.JWT_REFRESH_SECRET, {expiresIn: '24h'});
 
             const accessToken = generateAccessToken(user);
             const refreshToken = generateRefreshToken(user);
 
-            // return done(null, {user, accessToken: newAccessToken, refreshToken: newRefreshToken});
             return done(null, {user, accessToken, refreshToken});
         } catch (error) {
+            console.error("Error in Google Authentication", error);
             return done(error, null);
         }
     }
