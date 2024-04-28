@@ -15,24 +15,14 @@ OrderModel.belongsTo(UserModel, {foreignKey: 'userId'});
 UserModel.hasOne(CartModel, {foreignKey: 'userId', onDelete: 'CASCADE'});
 CartModel.belongsTo(UserModel, {foreignKey: 'userId'});
 
-// Cart and CartItem associations
-// CartModel.hasMany(CartItemModel, {foreignKey: 'cartId'});
-// CartItemModel.belongsTo(CartModel, {foreignKey: 'cartId'});
-// CartItemModel.belongsTo(ProductModel, {as: 'product', foreignKey: 'productId'});
-
 // Define the association with an alias
 CartModel.hasMany(CartItemModel, {foreignKey: 'cartId', as: 'items'});
 CartItemModel.belongsTo(CartModel, {foreignKey: 'cartId', as: 'cart'});
 CartItemModel.belongsTo(ProductModel, {as: 'product', foreignKey: 'productId'});
 
-
 // Order and OrderDetail associations
-// OrderModel.hasMany(OrderDetailModel, {foreignKey: 'orderId'});
-// OrderDetailModel.belongsTo(OrderModel, {foreignKey: 'orderId'});
-
 OrderModel.hasMany(OrderDetailModel, {foreignKey: 'orderId', as: 'OrderDetails'});
 OrderDetailModel.belongsTo(OrderModel, {foreignKey: 'orderId', as: 'Order'});
-
 
 // Product and CartItem (many-to-many through CartItem)
 ProductModel.belongsToMany(CartModel, {through: CartItemModel, foreignKey: 'productId'});

@@ -11,8 +11,8 @@ const config = require("../../config/config");
 
 const registerUser = async (req, res) => {
     try {
+
         const {firstName, lastName, email, password} = req.body;
-        // const existingUser = await UserModel.findOne({where: {email}});
         const existingUser = await findByEmail(email)
         if (existingUser) {
             return res.status(409).send('Email already in use');
@@ -133,6 +133,8 @@ const googleOAuth = async function (req, res) {
             user: {
                 id: req.user.user.userId,
                 email: req.user.user.email,
+                firstName: req.user.user.firstName,
+                lastName: req.user.user.lastName,
                 cartId: cartId
             }
         };
